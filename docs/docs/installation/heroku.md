@@ -9,7 +9,7 @@ Heroku is a container-based cloud Platform as a Service (PaaS).
 
 In order to deploy erxes and other related apps, you will need `mLab MongoDB` (MongoDB), `Heroku Redis` (Redis), and `CloudAMQP` (RabbitMQ) addons.
 
-To add any addon to an app, you will need to register your credit card. So please add your creadit card and verify your account prior to proceeding further.
+To add any addon to an app, you will need to register your credit card. So please add your credit card and verify your account prior to proceeding further.
 
 ## One Click deployment
 
