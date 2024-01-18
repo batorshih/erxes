@@ -36,7 +36,7 @@ interface IProps {
 
 class List extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, category?: IProductCategory) {
-    const content = props => (
+    const content = (props) => (
       <CategoryForm
         {...props}
         category={category}
@@ -53,10 +53,6 @@ class List extends React.Component<IProps> {
       />
     );
   }
-
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { categoryId: null });
-  };
 
   isActive = (id: string) => {
     const { queryParams } = this.props;
@@ -121,30 +117,14 @@ class List extends React.Component<IProps> {
       </Button>
     );
 
-    return (
-      <>
-        <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title>
-          {__('Categories')}
-
-          <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
-      </>
-    );
+    return <Header>{this.renderFormTrigger(trigger)}</Header>;
   }
 
   render() {
     return (
-      <Sidebar wide={true} hasBorder={true}>
+      <Sidebar hasBorder={true}>
         {this.renderCategoryHeader()}
+
         <SidebarList>{this.renderContent()}</SidebarList>
 
         {isEnabled('segments') && (

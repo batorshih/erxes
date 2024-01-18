@@ -3,9 +3,14 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/proper
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import client from '@erxes/ui/src/apolloClient';
-import { Button, HeaderDescription } from '@erxes/ui/src/components';
+import {
+  Button,
+  DataWithLoader,
+  EmptyState,
+  HeaderDescription,
+  Spinner,
+} from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
@@ -13,10 +18,12 @@ import { ContentBox } from '../../styles';
 import { IConfigsMap } from '../../types';
 import PerSettings from './PerSimilarityGroup';
 import Sidebar from './Sidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  loading: boolean;
 };
 
 type State = {
@@ -30,7 +37,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     this.state = {
       configsMap: props.configsMap,
-      fieldGroups: []
+      fieldGroups: [],
     };
 
     if (isEnabled('forms')) {
@@ -38,18 +45,24 @@ class GeneralSettings extends React.Component<Props, State> {
         .query({
           query: gql(fieldQueries.fieldsGroups),
           variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT
-          }
+            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+          },
         })
         .then(({ data }) => {
           this.setState({
-            fieldGroups: data ? data.fieldsGroups : [] || []
+            fieldGroups: data ? data.fieldsGroups : [] || [],
           });
         });
     }
   }
 
-  add = e => {
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ configsMap: this.props.configsMap || {} });
+    }
+  }
+
+  add = (e) => {
     e.preventDefault();
     const { configsMap } = this.state;
 
@@ -61,10 +74,10 @@ class GeneralSettings extends React.Component<Props, State> {
           newSimilarityGroup: {
             title: 'New similiraty group',
             codeMask: '',
-            rules: []
-          }
-        }
-      }
+            rules: [],
+          },
+        },
+      },
     });
   };
 
@@ -81,7 +94,7 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerSettings
           key={key}
@@ -98,7 +111,22 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
+    const { loading } = this.props;
     const configs = configsMap.similarityGroup || {};
+
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    if (!loading && Object.keys(configs).length === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Uoms config"
+          size="small"
+        />
+      );
+    }
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
@@ -110,14 +138,14 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Products similarity group config') }
+      { title: __('Products similarity group config') },
     ];
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.add}
-        icon="plus"
+        icon="plus-circle"
         uppercase={false}
       >
         New config

@@ -3,10 +3,11 @@ import * as strip from 'strip';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
 }: {
   name: string;
   subdomain?: string;
@@ -39,7 +40,7 @@ export const paginate = (
     page?: number;
     perPage?: number;
     excludeIds?: boolean;
-  }
+  },
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
@@ -67,8 +68,8 @@ const stringToRegex = (value: string) => {
   const specialChars = '{}[]\\^$.|?*+()'.split('');
   const val = value.split('');
 
-  const result = val.map(char =>
-    specialChars.includes(char) ? '.?\\' + char : '.?' + char
+  const result = val.map((char) =>
+    specialChars.includes(char) ? '.?\\' + char : '.?' + char,
   );
 
   return '.*' + result.join('').substring(2) + '.*';
@@ -76,7 +77,7 @@ const stringToRegex = (value: string) => {
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = 'searchText'
+  searchKey = 'searchText',
 ) => {
   const result: any[] = [];
 
@@ -86,7 +87,7 @@ export const regexSearchText = (
 
   for (const word of words) {
     result.push({
-      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' }
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' },
     });
   }
 
@@ -124,8 +125,8 @@ export const getToday = (date: Date): Date => {
       date.getUTCDate(),
       0,
       0,
-      0
-    )
+      0,
+    ),
   );
 };
 
@@ -160,11 +161,11 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
  */
 export const checkUserIds = (
   oldUserIds: string[] = [],
-  newUserIds: string[] = []
+  newUserIds: string[] = [],
 ) => {
-  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -219,7 +220,7 @@ const generateRandomEmail = () => {
 export const getUniqueValue = async (
   collection: any,
   fieldName: string = 'code',
-  defaultValue?: string
+  defaultValue?: string,
 ) => {
   const getRandomValue = (type: string) =>
     type === 'email' ? generateRandomEmail() : randomAlphanumeric();
@@ -254,13 +255,11 @@ export interface ISendMessageArgs {
 export const sendMessage = async (
   args: {
     client: any;
-    serviceDiscovery: any;
     serviceName: string;
-  } & ISendMessageArgs
+  } & ISendMessageArgs,
 ): Promise<any> => {
   const {
     client,
-    serviceDiscovery,
     serviceName,
     subdomain,
     action,
@@ -268,10 +267,10 @@ export const sendMessage = async (
     defaultValue,
     isRPC,
     isMQ,
-    timeout
+    timeout,
   } = args;
 
-  if (serviceName && !(await serviceDiscovery.isEnabled(serviceName))) {
+  if (serviceName && !(await isEnabled(serviceName))) {
     if (isRPC && defaultValue === undefined) {
       throw new Error(`${serviceName} service is not enabled`);
     } else {
@@ -292,7 +291,7 @@ export const sendMessage = async (
     data,
     defaultValue,
     timeout,
-    thirdService: data && data.thirdService
+    thirdService: data && data.thirdService,
   });
 };
 
@@ -303,12 +302,12 @@ interface IActionMap {
 export const userActionsMap = async (
   userPermissions: IPermissionDocument[],
   groupPermissions: IPermissionDocument[],
-  user: any
+  user: any,
 ): Promise<IActionMap> => {
   const totalPermissions: IPermissionDocument[] = [
     ...userPermissions,
     ...groupPermissions,
-    ...(user.customPermissions || [])
+    ...(user.customPermissions || []),
   ];
   const allowedActions: IActionMap = {};
 
@@ -358,7 +357,7 @@ const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  family: 4
+  family: 4,
 };
 
 export const createGenerateModels = <IModels>(models, loadClasses) => {
@@ -392,7 +391,7 @@ export const authCookieOptions = (options: any = {}) => {
     expires: new Date(Date.now() + maxAge),
     maxAge,
     secure,
-    ...options
+    ...options,
   };
 
   return cookieOptions;
@@ -415,7 +414,7 @@ const DATE_OPTIONS = {
   h: 1000 * 60 * 60,
   m: 1000 * 60,
   s: 1000,
-  ms: 1
+  ms: 1,
 };
 
 const CHARACTERS =
@@ -426,7 +425,7 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 export const dateToShortStr = (
   date?: Date | string | number,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
 ) => {
   date = new Date(date || new Date());
 
@@ -458,7 +457,7 @@ export const shortStrToDate = (
   shortStr: string,
   scale?: 10 | 16 | 62 | 92 | number,
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
-  resultType?: 'd' | 'n'
+  resultType?: 'd' | 'n',
 ) => {
   if (!shortStr) return;
 

@@ -24,10 +24,7 @@ type FinalProps = {
 const ListContainer = (props: FinalProps) => {
   const { uomsQuery, uomsCountQuery, uomsRemove } = props;
 
-  if (uomsQuery.loading || uomsCountQuery.loading) {
-    return <Spinner />;
-  }
-  const remove = uom => {
+  const remove = (uom) => {
     confirm(`This action will remove the uom. Are you sure?`)
       .then(() => {
         uomsRemove({ variables: { uomIds: [uom._id] } })
@@ -36,11 +33,11 @@ const ListContainer = (props: FinalProps) => {
             uomsQuery.refetch();
             uomsCountQuery.refetch();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -50,7 +47,7 @@ const ListContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -71,9 +68,9 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     uoms: uomsQuery.uoms || [],
     uomsTotalCount: uomsCountQuery.uomsTotalCount || 0,
-    loading: uomsQuery.loading,
+    loading: uomsQuery.loading || uomsCountQuery.loading,
     renderButton,
-    remove
+    remove,
   };
 
   return <List {...updatedProps} />;
@@ -84,16 +81,16 @@ const refetch = ['uoms', 'uomsTotalCount'];
 export default withProps<Props>(
   compose(
     graphql<Props, UomsQueryResponse>(gql(queries.uoms), {
-      name: 'uomsQuery'
+      name: 'uomsQuery',
     }),
     graphql<Props, UomsCountQueryResponse>(gql(queries.uomsTotalCount), {
-      name: 'uomsCountQuery'
+      name: 'uomsCountQuery',
     }),
     graphql<Props, UomRemoveMutationResponse, { _id: string }>(
       gql(mutations.uomsRemove),
       {
-        name: 'uomsRemove'
-      }
-    )
-  )(ListContainer)
+        name: 'uomsRemove',
+      },
+    ),
+  )(ListContainer),
 );

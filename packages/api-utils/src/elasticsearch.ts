@@ -1,5 +1,6 @@
 import * as elasticsearch from 'elasticsearch';
 import { debugError } from './debuggers';
+import { parse } from 'url';
 
 export interface IFetchEsArgs {
   subdomain: string;
@@ -11,6 +12,7 @@ export interface IFetchEsArgs {
   scroll?: string;
   size?: number;
   ignoreError?: boolean;
+  connectionString?: string;
 }
 
 export const doSearch = async ({
@@ -18,7 +20,7 @@ export const doSearch = async ({
   subdomain,
   index,
   value,
-  fields
+  fields,
 }: {
   subdomain: string;
   index: string;
@@ -28,15 +30,15 @@ export const doSearch = async ({
 }) => {
   const highlightFields = {};
 
-  fields.forEach(field => {
+  fields.forEach((field) => {
     highlightFields[field] = {};
   });
 
   const match = {
     multi_match: {
       query: value,
-      fields
-    }
+      fields,
+    },
   };
 
   let query: any = match;
@@ -52,24 +54,24 @@ export const doSearch = async ({
     body: {
       query: {
         bool: {
-          must: [query]
-        }
+          must: [query],
+        },
       },
       size: 10,
       highlight: {
-        fields: highlightFields
-      }
+        fields: highlightFields,
+      },
     },
-    defaultValue: { hits: { hits: [] } }
+    defaultValue: { hits: { hits: [] } },
   });
 
-  const results = fetchResults.hits.hits.map(result => {
+  const results = fetchResults.hits.hits.map((result) => {
     return {
       source: {
         _id: result._id,
-        ...result._source
+        ...result._source,
       },
-      highlight: result.highlight
+      highlight: result.highlight,
     };
   });
 
@@ -84,12 +86,13 @@ export const fetchEs = async ({
   defaultValue,
   scroll,
   size,
-  ignoreError = false
+  ignoreError = false,
+  connectionString,
 }: IFetchEsArgs) => {
   try {
     const params: any = {
-      index: `${getIndexPrefix()}${index}`,
-      body
+      index: `${getIndexPrefix(connectionString)}${index}`,
+      body,
     };
 
     if (action === 'search' && body && !body.size) {
@@ -112,7 +115,7 @@ export const fetchEs = async ({
   } catch (e) {
     if (!ignoreError) {
       debugError(
-        `Error during es query: ${JSON.stringify(body)}: ${e.message}`
+        `Error during es query: ${JSON.stringify(body)}: ${e.message}`,
       );
     }
 
@@ -127,14 +130,33 @@ export const fetchEs = async ({
 const { ELASTICSEARCH_URL = 'http://localhost:9200' } = process.env;
 
 export const client = new elasticsearch.Client({
-  hosts: [ELASTICSEARCH_URL]
+  hosts: [ELASTICSEARCH_URL],
 });
 
 export const getMappings = async (index: string) => {
   return client.indices.getMapping({ index });
 };
 
-export const getIndexPrefix = () => {
+export function getDbNameFromConnectionString(connectionString) {
+  const parsedUrl = parse(connectionString, true);
+
+  if (parsedUrl.pathname) {
+    const dbName = parsedUrl.pathname.substring(1);
+    return dbName;
+  }
+
+  return null;
+}
+
+export const getIndexPrefix = (connectionString?: string) => {
+  if (connectionString) {
+    const dbName = getDbNameFromConnectionString(connectionString);
+
+    if (dbName !== 'erxes') {
+      return `${dbName}__`;
+    }
+  }
+
   return 'erxes__';
 };
 
@@ -149,12 +171,67 @@ export const fetchEsWithScroll = async (scrollId: string) => {
   }
 };
 
+export const fetchByQueryWithScroll = async ({
+  subdomain,
+  index,
+  positiveQuery,
+  negativeQuery,
+  _source = '_id',
+}: {
+  subdomain: string;
+  index: string;
+  _source?: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  const response = await fetchEs({
+    subdomain,
+    action: 'search',
+    index,
+    scroll: '1m',
+    size: 10000,
+    body: {
+      _source,
+      query: {
+        bool: {
+          must: positiveQuery,
+          must_not: negativeQuery,
+        },
+      },
+    },
+    defaultValue: { _scroll_id: '', hits: { total: { value: 0 }, hits: [] } },
+  });
+
+  const totalCount = response.hits.total.value;
+  const scrollId = response._scroll_id;
+
+  let ids = response.hits.hits
+    .map((hit) => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter((r) => r);
+
+  if (totalCount < 10000) {
+    return ids;
+  }
+
+  while (totalCount > 0) {
+    const scrollResponse = await fetchEsWithScroll(scrollId);
+
+    if (scrollResponse.hits.hits.length === 0) {
+      break;
+    }
+
+    ids = ids.concat(scrollResponse.hits.hits.map((hit) => hit._id));
+  }
+
+  return ids;
+};
+
 export const fetchByQuery = async ({
   subdomain,
   index,
   positiveQuery,
   negativeQuery,
-  _source = '_id'
+  _source = '_id',
 }: {
   subdomain: string;
   index: string;
@@ -171,14 +248,14 @@ export const fetchByQuery = async ({
       query: {
         bool: {
           must: positiveQuery,
-          must_not: negativeQuery
-        }
-      }
+          must_not: negativeQuery,
+        },
+      },
     },
-    defaultValue: { hits: { hits: [] } }
+    defaultValue: { hits: { hits: [] } },
   });
 
   return response.hits.hits
-    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
-    .filter(r => r);
+    .map((hit) => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter((r) => r);
 };

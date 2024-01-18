@@ -1,19 +1,19 @@
 import { model } from 'mongoose';
-import { loadZmsClass, zmsSchema } from './zmsModel';
+import { loadZmsClass, xmlZmsSchema } from './xmlZmsModel';
 import { loadZmsLogClass, zmsLogSchema } from './zmsLogsModel';
 import {
   loadZmsDictionaryClass,
-  zmsDictionarySchema
+  zmsDictionarySchema,
 } from './zmsDictionaryModel';
 
 export const ZmsDictionaries = model<any, any>(
   'zmsDictionary',
-  zmsDictionarySchema
+  zmsDictionarySchema,
 );
 
 export const ZmsLogs = model<any, any>('zmsLog', zmsLogSchema);
 
-export const Zmss = model<any, any>('zmss', zmsSchema);
+export const Zmss = model<any, any>('zmss', xmlZmsSchema);
 
 loadZmsClass();
 loadZmsLogClass();

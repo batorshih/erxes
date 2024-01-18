@@ -38,7 +38,7 @@ class Actions extends React.Component<Props> {
     const { onUpdate, saveItem } = this.props;
 
     if (saveItem) {
-      saveItem({ priority: value }, updatedItem => {
+      saveItem({ priority: value }, (updatedItem) => {
         onUpdate(updatedItem);
       });
     }
@@ -53,10 +53,10 @@ class Actions extends React.Component<Props> {
       removeItem,
       sendToBoard,
       onChangeStage,
-      onChangeRefresh
+      onChangeRefresh,
     } = this.props;
 
-    const onLabelChange = labels => saveItem({ labels });
+    const onLabelChange = (labels) => saveItem({ labels });
 
     const tags = item.tags || [];
     const pipelineTagId = item.pipeline.tagId || '';
@@ -76,10 +76,10 @@ class Actions extends React.Component<Props> {
       options.type === 'deal'
         ? TAG_TYPES.DEAL
         : options.type === 'task'
-        ? TAG_TYPES.TASK
-        : options.type === 'purchase' // Add a new condition for 'purchase'
-        ? TAG_TYPES.PURCHASE
-        : TAG_TYPES.TICKET;
+          ? TAG_TYPES.TASK
+          : options.type === 'purchase' // Add a new condition for 'purchase'
+            ? TAG_TYPES.PURCHASE
+            : TAG_TYPES.TICKET;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">
@@ -136,8 +136,17 @@ class Actions extends React.Component<Props> {
           />
         )}
 
-        {/* {loadDynamicComponent('cardDetailAction', { item }, true)} */}
-        {isEnabled('documents') && <PrintActionButton item={item} />}
+        {loadDynamicComponent(
+          'cardDetailAction',
+          {
+            item,
+            contentType: 'cards',
+            subType: item.stage?.type,
+            path: `stageId=${item.stageId}`,
+          },
+          true,
+        )}
+        {/* {isEnabled('documents') && <PrintActionButton item={item} />} */}
       </ActionContainer>
     );
   }

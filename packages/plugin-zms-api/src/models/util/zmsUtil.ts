@@ -6,38 +6,39 @@ type Validation = {
 };
 
 const dictionary = {
-  currency: 'currency'
+  currency: 'currency',
 };
 
 const stringRegex = (to: number = 50) =>
-  new RegExp(`^[a-zA-Zа-яА-ЯёЁөӨүҮ -]{1,${to}}$`);
+  new RegExp(`^[a-zA-Zа-яА-ЯёЁөӨүҮЪЬ -]{1,${to}}$`);
 const IdRegex = /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,12}$/;
-const registerRegex = /^[a-zA-Zа-яА-ЯёЁөӨүҮ0-9]{1,16}$/;
+const registerRegex = /^[a-zA-Z]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
 const booleanRegex = /^[0-1]{1}$/;
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const numberLimRegex = /^\d{1,10}$/;
-const fullDateRegex = /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-const amountRegex = /^([0-9]{1,20}).([0-9]{2})/;
+const fullDateRegex =
+  /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1]) (2[0-3]|[01]\d):[0-5]\d:[0-5]\d$/;
+const amountRegex = /^(\d{1,20}).(\d{2})/;
 
 function fieldValidator(
   object,
   validation: Validation,
-  resultList
+  resultList,
 ): { hasError: boolean; errorMessage?: string; field?: string } {
   if (Array.isArray(object?.[validation.field])) {
     zmsListValidator(
       object?.[validation.field],
       validation.childrens ?? [],
-      resultList
+      resultList,
     );
     return { hasError: false };
   } else if (typeof object?.[validation.field] === 'object') {
     zmsObjectValidator(
       object?.[validation.field],
       validation.childrens ?? [],
-      resultList
+      resultList,
     );
     return { hasError: false };
   } else if (validation.isRequired) {
@@ -47,13 +48,13 @@ function fieldValidator(
       return {
         hasError: true,
         errorMessage: `regex not match ${validation.regex}`,
-        field: validation.field
+        field: validation.field,
       };
     } else if (object?.[validation.field]) return { hasError: false };
     return {
       hasError: true,
       errorMessage: 'field not has value',
-      field: validation.field
+      field: validation.field,
     };
   }
   return { hasError: false };
@@ -62,14 +63,14 @@ function fieldValidator(
 function zmsObjectValidator(
   zms: IZms,
   objectValidator: Validation[],
-  resultList
+  resultList,
 ) {
   try {
-    objectValidator.forEach(el => {
+    objectValidator.forEach((el) => {
       const { hasError, errorMessage, field } = fieldValidator(
         zms,
         el,
-        resultList
+        resultList,
       );
       if (hasError) resultList.push({ field, errorMessage });
     });
@@ -81,9 +82,9 @@ function zmsObjectValidator(
 export function zmsListValidator(
   zmsList: IZms[],
   validationFieldConfig: Validation[] = validationFields,
-  resultList = []
+  resultList = [],
 ) {
-  zmsList.forEach(zms => {
+  zmsList.forEach((zms) => {
     zmsObjectValidator(zms, validationFieldConfig, resultList);
   });
   return resultList;
@@ -93,12 +94,12 @@ export const validationFields = [
   {
     field: 'patch_number',
     isRequired: true,
-    regex: numberLimRegex
+    regex: numberLimRegex,
   },
   {
     field: 'data_provider_regnum',
     isRequired: true,
-    regex: numberLimRegex
+    regex: numberLimRegex,
   },
   {
     field: 'o_c_customer_information',
@@ -107,73 +108,73 @@ export const validationFields = [
       {
         field: 'c_civil_id',
         isRequired: true,
-        regex: IdRegex
+        regex: IdRegex,
       },
       {
         field: 'o_c_regnum',
         isRequired: true,
-        regex: registerRegex
+        regex: registerRegex,
       },
       {
         field: 'o_c_customer_name',
         isRequired: true,
-        regex: stringRegex()
+        regex: stringRegex(),
       },
       {
         field: 'c_lastname',
         isRequired: true,
-        regex: stringRegex()
+        regex: stringRegex(),
       },
       {
         field: 'c_familyname',
         isRequired: true,
-        regex: stringRegex()
+        regex: stringRegex(),
       },
       {
         field: 'o_c_isforeign',
         isRequired: true,
-        regex: booleanRegex
+        regex: booleanRegex,
       },
       {
         field: 'o_c_birthdate',
         isRequired: true,
-        regex: pureDateRegex
+        regex: pureDateRegex,
       },
       {
         field: 'o_c_phone',
         isRequired: true,
-        regex: numberRegex
+        regex: numberRegex,
       },
       {
         field: 'o_c_email',
         isRequired: true,
-        regex: emailRegex
+        regex: emailRegex,
       },
       {
         field: 'c_tax_number',
         isRequired: true,
-        regex: stringRegex()
+        regex: stringRegex(),
       },
       {
         field: 'c_family_numof_members',
         isRequired: true,
-        regex: numberLimRegex
+        regex: numberLimRegex,
       },
       {
         field: 'c_family_numof_unemployed',
         isRequired: true,
-        regex: numberLimRegex
+        regex: numberLimRegex,
       },
       {
         field: 'c_isemployed',
         isRequired: true,
-        regex: booleanRegex
+        regex: booleanRegex,
       },
       {
         field: 'c_occupation',
         isRequired: true,
         regex: stringRegex(),
-        dictionary: dictionary.currency
+        dictionary: dictionary.currency,
       },
       {
         field: 'o_c_address',
@@ -182,64 +183,64 @@ export const validationFields = [
           {
             field: 'o_c_address_full',
             isRequired: true,
-            regex: stringRegex(250)
+            regex: stringRegex(250),
           },
           {
             field: 'o_c_address_aimag_city_name',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_aimag_city_code',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_soum_district_name',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_soum_district_code',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_bag_khoroo_name',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_bag_khoroo_code',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_street_name',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_region_name',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_town_name',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_apartment_name',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_address_zipcode',
             isRequired: false,
-            regex: numberLimRegex
-          }
-        ]
+            regex: numberLimRegex,
+          },
+        ],
       },
       {
         field: 'c_job',
@@ -248,29 +249,29 @@ export const validationFields = [
           {
             field: 'c_job_position',
             isRequired: true,
-            regex: stringRegex(100)
+            regex: stringRegex(100),
           },
           {
             field: 'c_job_name',
             isRequired: true,
-            regex: stringRegex(100)
+            regex: stringRegex(100),
           },
           {
             field: 'c_job_address',
             isRequired: true,
-            regex: stringRegex(250)
+            regex: stringRegex(250),
           },
           {
             field: 'c_job_phone',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'c_job_mail',
             isRequired: true,
-            regex: stringRegex()
-          }
-        ]
+            regex: stringRegex(),
+          },
+        ],
       },
       {
         field: 'o_c_related_orgs',
@@ -279,39 +280,39 @@ export const validationFields = [
           {
             field: 'o_c_related_org_index',
             isRequired: true,
-            regex: numberLimRegex
+            regex: numberLimRegex,
           },
           {
             field: 'o_c_related_org_name',
             isRequired: true,
-            regex: stringRegex(100)
+            regex: stringRegex(100),
           },
           {
             field: 'o_c_related_org_isforeign',
             isRequired: true,
-            regex: booleanRegex
+            regex: booleanRegex,
           },
           {
             field: 'o_c_related_org_regnum',
             isRequired: false,
-            regex: registerRegex
+            regex: registerRegex,
           },
           {
             field: 'o_c_related_org_state_regnum',
             isRequired: false,
-            regex: stringRegex(12)
+            regex: stringRegex(12),
           },
           {
             field: 'o_c_related_org_relation',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_related_org_isfinancial_onus',
             isRequired: true,
-            regex: booleanRegex
-          }
-        ]
+            regex: booleanRegex,
+          },
+        ],
       },
       {
         field: 'o_c_related_customers',
@@ -320,56 +321,56 @@ export const validationFields = [
           {
             field: 'o_c_related_customer_index',
             isRequired: true,
-            regex: numberLimRegex
+            regex: numberLimRegex,
           },
           {
             field: 'o_c_related_customer_firstname',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_related_customer_lastname',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_related_customer_familyname',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_related_customer_isforeign',
             isRequired: true,
-            regex: booleanRegex
+            regex: booleanRegex,
           },
           {
             field: 'o_c_related_customer_civid_id',
             isRequired: true,
-            regex: stringRegex(12)
+            regex: stringRegex(12),
           },
           {
             field: 'o_c_related_customer_regnum',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_related_customer_relation',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_related_customer_isfinancial_onus',
             isRequired: true,
-            regex: booleanRegex
-          }
-        ]
+            regex: booleanRegex,
+          },
+        ],
       },
       {
         field: 'o_c_customer_bank_relation',
         isRequired: true,
-        regex: registerRegex
-      }
-    ]
+        regex: registerRegex,
+      },
+    ],
   },
   {
     field: 'o_c_loan_information',
@@ -378,132 +379,132 @@ export const validationFields = [
       {
         field: 'o_c_loan_contract_date',
         isRequired: true,
-        regex: fullDateRegex
+        regex: fullDateRegex,
       },
       {
         field: 'o_c_loan_amount',
         regex: amountRegex,
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_collateral_indexes',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_related_org_indexes',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_related_customer_indexes',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_balance_lcy',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_balance_fcy',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_interest_balance_lcy',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_additional_interest_balance_fcy',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_currency_rate',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_loan_provenance',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_bond_market',
         isRequired: false,
-        regex: stringRegex(100)
+        regex: stringRegex(100),
       },
       {
         field: 'o_c_loan_numof_bonds',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_bond_unit_price',
         isRequired: false,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_starteddate',
         isRequired: true,
-        regex: fullDateRegex
+        regex: fullDateRegex,
       },
       {
         field: 'o_c_loan_expdate',
         isRequired: true,
-        regex: pureDateRegex
+        regex: pureDateRegex,
       },
       {
         field: 'o_c_loan_status',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_decide_status',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_paiddate',
         isRequired: true,
-        regex: pureDateRegex
+        regex: pureDateRegex,
       },
       {
         field: 'o_c_loan_currency',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_sector',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_interest_rate',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_additional_interest_rate',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_commission',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_fee',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loan_class',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_type',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loan_line_contractno',
         isRequired: true,
-        regex: /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,50}$/
+        regex: /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,50}$/,
       },
       {
         field: 'o_c_loan_transactions',
@@ -512,17 +513,17 @@ export const validationFields = [
           {
             field: 'o_c_loan_schedule_type',
             isRequired: true,
-            regex: stringRegex()
+            regex: stringRegex(),
           },
           {
             field: 'o_c_loan_schedule_status',
             isRequired: true,
-            regex: booleanRegex
+            regex: booleanRegex,
           },
           {
             field: 'o_c_loan_schedule_change_reason',
             isRequired: true,
-            regex: stringRegex(250)
+            regex: stringRegex(250),
           },
           {
             field: 'o_c_loan_schedule',
@@ -531,29 +532,29 @@ export const validationFields = [
               {
                 field: 'o_c_schedule_due_date',
                 isRequired: true,
-                regex: pureDateRegex
+                regex: pureDateRegex,
               },
               {
                 field: 'o_c_schedule_principal',
                 isRequired: true,
-                regex: amountRegex
+                regex: amountRegex,
               },
               {
                 field: 'o_c_schedule_interest',
                 isRequired: true,
-                regex: amountRegex
+                regex: amountRegex,
               },
               {
                 field: 'o_c_schedule_additional',
                 isRequired: true,
-                regex: amountRegex
+                regex: amountRegex,
               },
               {
                 field: 'o_c_schedule_balance',
                 isRequired: true,
-                regex: amountRegex
-              }
-            ]
+                regex: amountRegex,
+              },
+            ],
           },
           {
             field: 'o_c_loan_payment',
@@ -562,33 +563,33 @@ export const validationFields = [
               {
                 field: 'o_c_payment_due_date',
                 isRequired: true,
-                regex: pureDateRegex
+                regex: pureDateRegex,
               },
               {
                 field: 'o_c_payment_date',
                 isRequired: true,
-                regex: pureDateRegex
+                regex: pureDateRegex,
               },
               {
                 field: 'o_c_payment_principal',
                 isRequired: true,
-                regex: amountRegex
+                regex: amountRegex,
               },
               {
                 field: 'o_c_payment_interest',
                 isRequired: true,
-                regex: amountRegex
+                regex: amountRegex,
               },
               {
                 field: 'o_c_payment_additional',
                 isRequired: true,
-                regex: amountRegex
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                regex: amountRegex,
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     field: 'o_c_loanline',
@@ -597,80 +598,80 @@ export const validationFields = [
       {
         field: 'o_c_loanline_contract_date',
         isRequired: true,
-        regex: pureDateRegex
+        regex: pureDateRegex,
       },
       {
         field: 'o_c_loanline_contractno',
         isRequired: true,
-        regex: stringRegex(50)
+        regex: stringRegex(50),
       },
       {
         field: 'o_c_loanline_contract_change_reason',
         isRequired: true,
-        regex: stringRegex(50)
+        regex: stringRegex(50),
       },
       {
         field: 'o_c_loanline_type',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loanline_advamount_lcy',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loanline_advamount_fcy',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loanline_starteddate',
         isRequired: true,
-        regex: fullDateRegex
+        regex: fullDateRegex,
       },
       {
         field: 'o_c_loanline_expdate',
         isRequired: true,
-        regex: pureDateRegex
+        regex: pureDateRegex,
       },
       {
         field: 'o_c_loanline_currency',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loanline_currency_rate',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loanline_sector',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_loanline_interest_rate',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loanline_commitment_interest_rate',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loanline_balance',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_loanline_paiddate',
         isRequired: true,
-        regex: pureDateRegex
+        regex: pureDateRegex,
       },
       {
         field: 'o_c_loanline_status',
-        isRequired: true
-      }
-    ]
+        isRequired: true,
+      },
+    ],
   },
   {
     field: 'o_c_coll_information',
@@ -679,55 +680,55 @@ export const validationFields = [
       {
         field: 'o_c_coll_index',
         isRequired: true,
-        regex: numberLimRegex
+        regex: numberLimRegex,
       },
       {
         field: 'o_c_coll_contractno',
         isRequired: true,
-        regex: stringRegex(20)
+        regex: stringRegex(20),
       },
       {
         field: 'o_c_coll_internalno',
         isRequired: true,
-        regex: stringRegex(20)
+        regex: stringRegex(20),
       },
       {
         field: 'o_c_coll_type',
-        isRequired: true
+        isRequired: true,
       },
       {
         field: 'o_c_coll_description',
         isRequired: true,
-        regex: stringRegex(250)
+        regex: stringRegex(250),
       },
       {
         field: 'o_c_coll_valuation_date',
         isRequired: true,
-        regex: pureDateRegex
+        regex: pureDateRegex,
       },
       {
         field: 'o_c_coll_value',
         isRequired: true,
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_coll_max_value',
-        regex: amountRegex
+        regex: amountRegex,
       },
       {
         field: 'o_c_coll_address',
         isRequired: true,
-        regex: stringRegex(250)
+        regex: stringRegex(250),
       },
       {
         field: 'o_c_coll_zipcode',
         isRequired: true,
-        regex: numberLimRegex
+        regex: numberLimRegex,
       },
       {
         field: 'o_c_coll_is_real_estate',
         isRequired: true,
-        regex: booleanRegex
+        regex: booleanRegex,
       },
       {
         field: 'o_c_coll_state_registration',
@@ -736,24 +737,24 @@ export const validationFields = [
           {
             field: 'o_c_coll_certificateno',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_coll_state_regnum',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_coll_registered_date',
             isRequired: true,
-            regex: pureDateRegex
+            regex: pureDateRegex,
           },
           {
             field: 'o_c_coll_confirmed_date',
             isRequired: true,
-            regex: pureDateRegex
-          }
-        ]
+            regex: pureDateRegex,
+          },
+        ],
       },
       {
         field: 'o_c_coll_other_registration',
@@ -762,24 +763,24 @@ export const validationFields = [
           {
             field: 'o_c_coll_other_certificateno',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_coll_other_regnum',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_coll_other_name',
             isRequired: true,
-            regex: stringRegex(100)
+            regex: stringRegex(100),
           },
           {
             field: 'o_c_coll_other_registered_date',
             isRequired: true,
-            regex: pureDateRegex
-          }
-        ]
+            regex: pureDateRegex,
+          },
+        ],
       },
       {
         field: 'o_c_coll_customer',
@@ -788,29 +789,29 @@ export const validationFields = [
           {
             field: 'o_c_coll_customer_firstname',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_coll_customer_lastname',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_coll_customer_isforeign',
             isRequired: true,
-            regex: booleanRegex
+            regex: booleanRegex,
           },
           {
             field: 'o_c_coll_customer_civil_id',
             isRequired: true,
-            regex: IdRegex
+            regex: IdRegex,
           },
           {
             field: 'o_c_coll_customer_regnum',
             isRequired: true,
-            regex: stringRegex(16)
-          }
-        ]
+            regex: stringRegex(16),
+          },
+        ],
       },
       {
         field: 'o_c_coll_org',
@@ -819,27 +820,27 @@ export const validationFields = [
           {
             field: 'o_c_coll_org_name',
             isRequired: true,
-            regex: stringRegex(50)
+            regex: stringRegex(50),
           },
           {
             field: 'o_c_coll_org_islocal',
             isRequired: true,
-            regex: booleanRegex
+            regex: booleanRegex,
           },
           {
             field: 'o_c_coll_org_regnum',
             isRequired: true,
-            regex: stringRegex(16)
+            regex: stringRegex(16),
           },
           {
             field: 'o_c_coll_org_state_regnum',
             isRequired: true,
-            regex: stringRegex(16)
-          }
-        ]
-      }
-    ]
-  }
+            regex: stringRegex(16),
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 //#region interface
@@ -1062,7 +1063,7 @@ export interface IZms {
       new;
       o_c_loan_line_contractno: string;
       o_c_loan_transactions: o_c_loan_transactions;
-    }
+    },
   ];
 
   o_c_loanline: [
@@ -1084,7 +1085,7 @@ export interface IZms {
       o_c_loanline_balance: number;
       o_c_loanline_paiddate: Date;
       o_c_loanline_status: string; // new
-    }
+    },
   ];
 
   o_c_coll_information: [
@@ -1104,7 +1105,7 @@ export interface IZms {
       o_c_coll_other_registration: o_c_coll_other_registration;
       o_c_coll_customer: o_c_coll_customer;
       o_c_coll_org: o_c_coll_org;
-    }
+    },
   ];
 }
 

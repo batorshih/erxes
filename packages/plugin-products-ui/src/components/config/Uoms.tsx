@@ -5,7 +5,7 @@ import {
   HeaderDescription,
   ModalTrigger,
   Pagination,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from './UomsForm';
@@ -15,6 +15,7 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import { IUom } from '../../types';
 import Row from './Row';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   uomsTotalCount: number;
@@ -28,12 +29,6 @@ class Uoms extends React.Component<Props, {}> {
   renderContent() {
     const { uoms, renderButton, remove } = this.props;
 
-    if (uoms.length === 0) {
-      return (
-        <EmptyState image="/images/actions/8.svg" text="No Uoms" size="small" />
-      );
-    }
-
     return (
       <>
         <Table>
@@ -45,7 +40,7 @@ class Uoms extends React.Component<Props, {}> {
             </tr>
           </thead>
           <tbody>
-            {uoms.map(uom => {
+            {uoms.map((uom) => {
               return (
                 <Row
                   key={uom._id}
@@ -66,7 +61,7 @@ class Uoms extends React.Component<Props, {}> {
     const { uomsTotalCount, loading } = this.props;
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Uoms'), link: '/settings/uoms-manage' }
+      { title: __('Uoms'), link: '/settings/uoms-manage' },
     ];
 
     const addBrand = (
@@ -80,7 +75,7 @@ class Uoms extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <Form {...props} extended={true} renderButton={this.props.renderButton} />
     );
 
@@ -94,6 +89,8 @@ class Uoms extends React.Component<Props, {}> {
       />
     );
 
+    const leftActionBar = <Title>{`All Uoms (${uomsTotalCount})`}</Title>;
+
     return (
       <Wrapper
         header={<Wrapper.Header title={`Uom`} breadcrumb={breadcrumb} />}
@@ -104,7 +101,13 @@ class Uoms extends React.Component<Props, {}> {
             description={__('Add uoms ...')}
           />
         }
-        actionBar={<Wrapper.ActionBar right={righActionBar} wideSpacing />}
+        actionBar={
+          <Wrapper.ActionBar
+            right={righActionBar}
+            wideSpacing={true}
+            left={leftActionBar}
+          />
+        }
         leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
@@ -116,7 +119,7 @@ class Uoms extends React.Component<Props, {}> {
           />
         }
         footer={uomsTotalCount > 0 && <Pagination count={uomsTotalCount} />}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

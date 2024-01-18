@@ -1,4 +1,9 @@
-import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import {
+  Flex,
+  FormColumn,
+  FormWrapper,
+  ModalFooter,
+} from '@erxes/ui/src/styles/main';
 import { __, getEnv } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -43,8 +48,8 @@ export const ActionButton = styledTS<{ color?: string }>(styled.div)`
   font-weight: 500;
   line-height: 25px;
   font-size: 12px;
-  background-color: ${props => rgba(props.color || colors.colorPrimary, 0.1)};
-  color: ${props => props.color || colors.colorPrimaryDark};
+  background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${(props) => props.color || colors.colorPrimaryDark};
   padding: 0 10px;
   transition: background 0.3s ease;
   > i {
@@ -55,7 +60,8 @@ export const ActionButton = styledTS<{ color?: string }>(styled.div)`
   }
   &:hover {
     cursor: pointer;
-    background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
+    background-color: ${(props) =>
+      rgba(props.color || colors.colorPrimary, 0.2)};
   }
 `;
 
@@ -67,8 +73,8 @@ type State = {
   documents: any[];
   loading: boolean;
   showPopup: boolean;
-  selectedDocumentId: String;
-  copyInfos: { id: string; c: number; product: any }[];
+  selectedDocumentId: string;
+  copyInfos: Array<{ id: string; c: number; product: any }>;
   copies: number;
   width: number;
   branchId: string;
@@ -86,22 +92,22 @@ class BulkDocuments extends React.Component<Props, State> {
       documents: [],
       loading: false,
       showPopup: false,
-      copyInfos: (props.bulk || []).map(b => ({
+      copyInfos: (props.bulk || []).map((b) => ({
         id: b._id,
         c: 1,
-        product: b
+        product: b,
       })),
       copies: Number(
-        localStorage.getItem('erxes_products_documents_copies') || 1
+        localStorage.getItem('erxes_products_documents_copies') || 1,
       ),
       width: Number(
-        localStorage.getItem('erxes_products_documents_width') || 300
+        localStorage.getItem('erxes_products_documents_width') || 300,
       ),
       isDate: false,
       date: new Date(),
       branchId: localStorage.getItem('erxes_products_documents_branchId') || '',
       departmentId:
-        localStorage.getItem('erxes_products_documents_departmentId') || ''
+        localStorage.getItem('erxes_products_documents_departmentId') || '',
     };
   }
 
@@ -109,17 +115,17 @@ class BulkDocuments extends React.Component<Props, State> {
     this.setState({
       loading: true,
       showPopup: false,
-      copyInfos: (this.props.bulk || []).map(b => ({
+      copyInfos: (this.props.bulk || []).map((b) => ({
         id: b._id,
         c: 1,
-        product: b
-      }))
+        product: b,
+      })),
     });
 
     client
       .mutate({
         mutation: gql(queries.documents),
-        variables: { contentType: 'products' }
+        variables: { contentType: 'products' },
       })
       .then(({ data }) => {
         this.setState({ documents: data.documents });
@@ -139,24 +145,25 @@ class BulkDocuments extends React.Component<Props, State> {
       branchId,
       departmentId,
       isDate,
-      date
+      date,
     } = this.state;
 
     window.open(
       `${
         getEnv().REACT_APP_API_URL
       }/pl:documents/print?_id=${selectedDocumentId}&productIds=${JSON.stringify(
-        copyInfos.map(c => ({ id: c.id, c: c.c }))
-      )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}&date=${date}&isDate=${isDate ||
-        ''}`
+        copyInfos.map((c) => ({ id: c.id, c: c.c })),
+      )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}&date=${date}&isDate=${
+        isDate || ''
+      }`,
     );
   };
 
-  showPopup = selectedDocumentId => {
+  showPopup = (selectedDocumentId) => {
     this.setState({ showPopup: true, selectedDocumentId });
   };
 
-  onChange = e => {
+  onChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
     this.setState({ [name]: value } as any, () => {
@@ -212,7 +219,7 @@ class BulkDocuments extends React.Component<Props, State> {
       return null;
     }
 
-    const content = formProps => {
+    const content = (formProps) => {
       const { copies, width, copyInfos } = this.state;
 
       return (
@@ -244,7 +251,7 @@ class BulkDocuments extends React.Component<Props, State> {
                   name="branchId"
                   multi={false}
                   initialValue={this.state.branchId}
-                  onSelect={branchId =>
+                  onSelect={(branchId) =>
                     this.onChangeSelect('branchId', branchId)
                   }
                 />
@@ -256,7 +263,7 @@ class BulkDocuments extends React.Component<Props, State> {
                   name="departmentId"
                   multi={false}
                   initialValue={this.state.departmentId}
-                  onSelect={departmentId =>
+                  onSelect={(departmentId) =>
                     this.onChangeSelect('departmentId', departmentId)
                   }
                 />
@@ -268,11 +275,11 @@ class BulkDocuments extends React.Component<Props, State> {
                   dateFormat="YYYY-MM-DD"
                   timeFormat="HH:mm"
                   viewMode={'days'}
-                  closeOnSelect
-                  utc
-                  input
+                  closeOnSelect={true}
+                  utc={true}
+                  input={true}
                   value={this.state.date || null}
-                  onChange={date =>
+                  onChange={(date) =>
                     this.setState({ date: new Date(date || '') })
                   }
                 />
@@ -284,7 +291,7 @@ class BulkDocuments extends React.Component<Props, State> {
                   required={true}
                   name="isDate"
                   checked={this.state.isDate}
-                  onChange={e =>
+                  onChange={(e) =>
                     this.setState({ isDate: (e.target as any).checked })
                   }
                 />
@@ -292,7 +299,7 @@ class BulkDocuments extends React.Component<Props, State> {
             </FormColumn>
             <FormColumn>
               {(copyInfos || []).map((copy, ind) => (
-                <Flex className="canFocus">
+                <Flex key={ind} className="canFocus">
                   <Label>{`${copy.product.code} - ${copy.product.name}: `}</Label>
                   <FormControl
                     {...formProps}
@@ -302,17 +309,17 @@ class BulkDocuments extends React.Component<Props, State> {
                     name="copy"
                     value={copy.c}
                     onKeyDown={this.onKeyDown.bind(this, ind)}
-                    onFocus={e => (e.target as any).select()}
-                    onChange={e =>
+                    onFocus={(e) => (e.target as any).select()}
+                    onChange={(e) =>
                       this.setState({
-                        copyInfos: copyInfos.map(c =>
+                        copyInfos: copyInfos.map((c) =>
                           c.id === copy.id
                             ? {
                                 ...c,
-                                c: (e.target as any).value
+                                c: (e.target as any).value,
                               }
-                            : c
-                        )
+                            : c,
+                        ),
                       })
                     }
                   />
@@ -320,7 +327,9 @@ class BulkDocuments extends React.Component<Props, State> {
               ))}
             </FormColumn>
           </FormWrapper>
-          <Button onClick={this.print}>Print</Button>
+          <ModalFooter>
+            <Button onClick={this.print}>Print</Button>
+          </ModalFooter>
         </>
       );
     };
@@ -336,12 +345,12 @@ class BulkDocuments extends React.Component<Props, State> {
   }
 
   render() {
-    const { documents, loading } = this.state;
+    const { documents } = this.state;
 
     const trigger = (
-      <ActionButton onClick={this.loadDocuments}>
-        {loading ? 'loading' : __('Print document')}
-      </ActionButton>
+      <Button btnStyle="success" onClick={this.loadDocuments}>
+        {__('Print document')}
+      </Button>
     );
 
     return (
@@ -354,7 +363,7 @@ class BulkDocuments extends React.Component<Props, State> {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {documents.map(item => (
+            {documents.map((item) => (
               <li key={item._id}>
                 <ActionItem onClick={this.showPopup.bind(this, item._id)}>
                   {item.name}

@@ -61,6 +61,7 @@ class List extends React.Component<Props> {
         targets={bulk}
         trigger={tagButton}
         successCallback={emptyBulk}
+        refetchQueries={['engageMessages']}
       />
     );
   }
@@ -97,7 +98,7 @@ class List extends React.Component<Props> {
       avgClickPercent,
       avgRenderingFailurePercent,
       avgRejectPercent,
-      avgSendPercent
+      avgSendPercent,
     } = emailPercentages;
 
     const content = () => (
@@ -180,17 +181,17 @@ class List extends React.Component<Props> {
         {this.renderBox(
           'Auto campaign',
           'Auto message description',
-          '/campaigns/create?kind=auto'
+          '/campaigns/create?kind=auto',
         )}
         {this.renderBox(
           'Manual campaign',
           'Manual message description',
-          '/campaigns/create?kind=manual'
+          '/campaigns/create?kind=manual',
         )}
         {this.renderBox(
           'Visitor auto campaign',
           'Visitor auto message description',
-          '/campaigns/create?kind=visitorAuto'
+          '/campaigns/create?kind=visitorAuto',
         )}
       </FlexContainer>
     );
@@ -219,7 +220,7 @@ class List extends React.Component<Props> {
       loading,
       queryParams,
       isAllSelected,
-      refetch
+      refetch,
     } = this.props;
 
     const actionBar = (
@@ -254,7 +255,7 @@ class List extends React.Component<Props> {
           </tr>
         </thead>
         <tbody id="engageMessages">
-          {messages.map(message => (
+          {messages.map((message) => (
             <MessageListRow
               isChecked={bulk.includes(message)}
               toggleBulk={toggleBulk}

@@ -42,7 +42,6 @@ const ProductContent = styled.div`
 
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  max-width: 90%;
   margin: 0 auto;
 `;
 
@@ -52,12 +51,12 @@ const ProductBarcodeContent = styledTS<{ isValid?: boolean }>(styled.div)`
     justify-content: flex-end;
     align-items: center;
     
-    color: ${props =>
+    color: ${(props) =>
       props.isValid ? colors.colorCoreGreen : colors.colorCoreGray} !important;
   }
 
   a:hover {
-    color: ${props =>
+    color: ${(props) =>
       props.isValid ? colors.colorCoreGreen : lighten(colors.textPrimary, 40)};
   }
 `;
@@ -80,5 +79,5 @@ export {
   ContentBox,
   ProductBarcodeContent,
   BarcodeContentWrapper,
-  SidebarContent
+  SidebarContent,
 };

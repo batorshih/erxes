@@ -1,12 +1,19 @@
-import { FormControl } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
 import { IProduct } from '../../types';
-import { __ } from '@erxes/ui/src/utils/core';
+
 import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+
+import {
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __,
+  ActionButtons,
+} from '@erxes/ui/src';
 
 type Props = {
   product: IProduct;
@@ -21,13 +28,21 @@ class Row extends React.Component<Props> {
 
     const tags = product.getTags || [];
 
-    const onChange = e => {
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(product, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -35,7 +50,7 @@ class Row extends React.Component<Props> {
       history.push(`/settings/product-service/details/${product._id}`);
     };
 
-    const content = props => <ProductForm {...props} product={product} />;
+    const content = (props) => <ProductForm {...props} product={product} />;
 
     const { code, name, type, category, unitPrice } = product;
 
@@ -59,12 +74,14 @@ class Row extends React.Component<Props> {
           <Tags tags={tags} limit={2} />
         </td>
         <td onClick={onClick}>
-          <ModalTrigger
-            title="Edit basic info"
-            trigger={<Icon icon="edit" />}
-            size="xl"
-            content={content}
-          />
+          <ActionButtons>
+            <ModalTrigger
+              title="Edit basic info"
+              trigger={trigger}
+              size="xl"
+              content={content}
+            />
+          </ActionButtons>
         </td>
       </tr>
     );

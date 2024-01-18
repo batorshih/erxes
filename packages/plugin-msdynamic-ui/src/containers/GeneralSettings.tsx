@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import List from '../components/GeneralSettings';
+import List from '../components/settings/GeneralSettings';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
 import { mutations, queries } from '../graphql';
 import React from 'react';
@@ -29,14 +29,14 @@ const GeneralSettingsContainer = (props: FinalProps) => {
 
   const save = (map: IConfigsMap) => {
     updateConfigs({
-      variables: { configsMap: map }
+      variables: { configsMap: map },
     })
       .then(() => {
         configsQuery.refetch();
 
         Alert.success('You successfully updated stage in syncerkhet settings');
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -44,7 +44,7 @@ const GeneralSettingsContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     save,
-    configsMap
+    configsMap,
   };
   return <List {...updatedProps} />;
 };
@@ -55,13 +55,13 @@ export default withProps<Props>(
       name: 'configsQuery',
       options: () => ({
         variables: {
-          code: 'DYNAMIC'
+          code: 'DYNAMIC',
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<{}>(gql(mutations.updateConfigs), {
-      name: 'updateConfigs'
-    })
-  )(GeneralSettingsContainer)
+      name: 'updateConfigs',
+    }),
+  )(GeneralSettingsContainer),
 );

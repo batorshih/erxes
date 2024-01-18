@@ -2,7 +2,8 @@ export const menuDynamic = [
   { title: 'Sync History', link: '/sync-msdynamic-history' },
   { title: 'Check Categories', link: '/msdynamic-category' },
   { title: 'Check Products', link: '/msdynamic-products' },
-  { title: 'Check Customers', link: '/msdynamic-customers' }
+  { title: 'Check Price', link: '/msdynamic-price' },
+  { title: 'Check Customers', link: '/msdynamic-customers' },
 ];
 
 export const KEY_LABELS = {
@@ -13,5 +14,5 @@ export const KEY_LABELS = {
   salesApi: 'sales api',
   salesLineApi: 'sales line api',
   username: 'username',
-  password: 'password'
+  password: 'password',
 };

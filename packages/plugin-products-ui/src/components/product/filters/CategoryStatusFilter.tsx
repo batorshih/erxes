@@ -15,39 +15,20 @@ interface IProps extends IRouterProps {
 class CategoryStatusFilter extends React.Component<IProps> {
   render() {
     const { history } = this.props;
-    const productParam = 'productStatus';
-    const categoryParam = 'categoryStatus';
+    const productParam = 'state';
+    const categoryParam = 'status';
 
-    const onClear = () => {
-      router.setParams(history, { categoryStatus: null });
-    };
-
-    const onClearProduct = () => {
-      router.setParams(history, { productStatus: null });
-    };
-
-    const extraButtons = router.getParam(history, categoryParam) && (
-      <a href="#cancel" tabIndex={0} onClick={onClear}>
-        <Icon icon="cancel-1" />
-      </a>
-    );
-
-    const extraProductButton = router.getParam(history, productParam) && (
-      <a href="#cancel" tabIndex={0} onClick={onClearProduct}>
-        <Icon icon="cancel-1" />
-      </a>
-    );
     const onClick = (key, value) => {
       router.setParams(history, { [key]: value });
       router.setParams(history, { categoryId: null });
     };
 
     return (
-      <div>
+      <>
         <Box
-          extraButtons={extraButtons}
           title={__('FILTER CATEGORY BY STATUS')}
           name="showFilterByType"
+          isOpen={router.getParam(history, [categoryParam])}
         >
           <SidebarList>
             {categoryStatusChoises(__).map(
@@ -67,20 +48,20 @@ class CategoryStatusFilter extends React.Component<IProps> {
                       <FieldStyle>{label}</FieldStyle>
                     </a>
                   </li>
-                )
+                ),
             )}
           </SidebarList>
         </Box>
         <Box
-          extraButtons={extraProductButton}
           title={__('FILTER PRODUCT BY STATUS')}
           name="showFilterByType"
+          isOpen={router.getParam(history, [productParam])}
         >
           <SidebarList>
             {categoryStatusChoises(__).map(
               (
                 { value, label }: { value: string; label: string },
-                index: number
+                index: number,
               ) =>
                 value === 'deleted' && (
                   <li key={index}>
@@ -97,11 +78,11 @@ class CategoryStatusFilter extends React.Component<IProps> {
                       <FieldStyle>{label}</FieldStyle>
                     </a>
                   </li>
-                )
+                ),
             )}
           </SidebarList>
         </Box>
-      </div>
+      </>
     );
   }
 }

@@ -1,13 +1,13 @@
 import {
   AddMessageMutationVariables,
   IConversation,
-  IMessage
+  IMessage,
 } from '@erxes/ui-inbox/src/inbox/types';
 import { ContenFooter, ContentBox } from '@erxes/ui/src/layout/styles';
 import {
   ConversationWrapper,
   MailSubject,
-  RenderConversationWrapper
+  RenderConversationWrapper,
 } from './styles';
 
 import ActionBar from './ActionBar';
@@ -34,7 +34,7 @@ type Props = {
     variables,
     optimisticResponse,
     callback,
-    kind
+    kind,
   }: {
     variables: AddMessageMutationVariables;
     optimisticResponse: any;
@@ -48,8 +48,6 @@ type Props = {
 
 type State = {
   attachmentPreview: IAttachmentPreview;
-  keysPressed: any;
-  showInternalState: boolean;
 };
 
 export default class WorkArea extends React.Component<Props, State> {
@@ -58,17 +56,8 @@ export default class WorkArea extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const internalNoteState =
-      localStorage.getItem(
-        `showInternalState-${props.currentConversationId}`
-      ) === 'true'
-        ? true
-        : false;
-
     this.state = {
       attachmentPreview: null,
-      keysPressed: {},
-      showInternalState: internalNoteState || false
     };
 
     this.node = React.createRef();
@@ -76,42 +65,7 @@ export default class WorkArea extends React.Component<Props, State> {
 
   componentDidMount() {
     this.scrollBottom();
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
   }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-    document.removeEventListener('keyup', this.handleKeyUp);
-  }
-
-  handleKeyDown = (event: any) => {
-    const { keysPressed } = this.state;
-    const key = event.key;
-
-    this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
-      if (
-        this.state.keysPressed.Control === true &&
-        this.state.keysPressed.i === true
-      ) {
-        this.setState(
-          { showInternalState: !this.state.showInternalState },
-          () => {
-            localStorage.setItem(
-              `showInternalState-${this.props.currentConversationId}`,
-              String(this.state.showInternalState)
-            );
-          }
-        );
-      }
-    });
-  };
-
-  handleKeyUp = (event: any) => {
-    delete this.state.keysPressed[event.key];
-
-    this.setState({ keysPressed: { ...this.state.keysPressed } });
-  };
 
   // Calculating new messages's height to use later in componentDidUpdate
   // So that we can retract cursor position to original place
@@ -167,7 +121,7 @@ export default class WorkArea extends React.Component<Props, State> {
     }
   };
 
-  setAttachmentPreview = attachmentPreview => {
+  setAttachmentPreview = (attachmentPreview) => {
     this.setState({ attachmentPreview });
   };
 
@@ -193,7 +147,7 @@ export default class WorkArea extends React.Component<Props, State> {
 
     let tempId;
 
-    messages.forEach(message => {
+    messages.forEach((message) => {
       rows.push(
         <Message
           isSameUser={
@@ -204,7 +158,7 @@ export default class WorkArea extends React.Component<Props, State> {
           conversationFirstMessage={conversationFirstMessage}
           message={message}
           key={message._id}
-        />
+        />,
       );
 
       tempId = message.userId ? message.userId : message.customerId;
@@ -272,7 +226,7 @@ export default class WorkArea extends React.Component<Props, State> {
       addMessage,
       typingInfo,
       refetchMessages,
-      refetchDetail
+      refetchDetail,
     } = this.props;
 
     const { kind } = currentConversation.integration;
@@ -291,13 +245,7 @@ export default class WorkArea extends React.Component<Props, State> {
     const respondBox = () => {
       const data = (
         <RespondBox
-          showInternal={
-            isEnabled('internalnotes')
-              ? showInternal
-                ? true
-                : this.state.showInternalState
-              : false
-          }
+          showInternal={isEnabled('internalnotes') ? showInternal : false}
           disableInternalState={showInternal ? true : false}
           conversation={currentConversation}
           setAttachmentPreview={this.setAttachmentPreview}

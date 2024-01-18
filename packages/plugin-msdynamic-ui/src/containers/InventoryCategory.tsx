@@ -4,14 +4,15 @@ import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import {
   ToCheckCategoriesMutationResponse,
-  ToSyncCategoriesMutationResponse
+  ToSyncCategoriesMutationResponse,
 } from '../types';
+import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import InventoryCategory from '../components/InventoryCategory';
+import InventoryCategory from '../components/category/InventoryCategory';
 
 type Props = {
   history: any;
@@ -25,14 +26,20 @@ type FinalProps = {} & Props &
 const InventoryCategoryContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
+  const brandId = props.queryParams.brandId || 'noBrand';
+
+  const setBrand = (brandId: string) => {
+    router.setParams(props.history, { brandId: brandId });
+    return router;
+  };
 
   if (loading) {
     return <Spinner />;
   }
 
   const setSyncStatusTrue = (data: any, categories: any, action: string) => {
-    data[action].items = data[action].items.map(i => {
-      if (categories.find(c => c.code === i.code)) {
+    data[action].items = data[action].items.map((i) => {
+      if (categories.find((c) => c.code === i.code)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;
@@ -42,9 +49,9 @@ const InventoryCategoryContainer = (props: FinalProps) => {
   };
 
   const setSyncStatus = (data: any, action: string) => {
-    const createData = data[action].items.map(d => ({
+    const createData = data[action].items.map((d) => ({
       ...d,
-      syncStatus: false
+      syncStatus: false,
     }));
     data[action].items = createData;
 
@@ -55,9 +62,9 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     setLoading(true);
     props
       .toCheckProductCategories({
-        variables: {}
+        variables: { brandId },
       })
-      .then(response => {
+      .then((response) => {
         const data = response.data.toCheckProductCategories;
 
         setSyncStatus(data, 'create');
@@ -67,7 +74,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
         setItems(response.data.toCheckProductCategories);
         setLoading(false);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -78,9 +85,10 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     props
       .toSyncProductCategories({
         variables: {
+          brandId,
           action,
-          categories
-        }
+          categories,
+        },
       })
       .then(() => {
         setLoading(false);
@@ -92,7 +100,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
         setSyncStatusTrue(data, categories, action.toLowerCase());
         setItems(data);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -102,8 +110,9 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     ...props,
     loading,
     items,
+    setBrand,
     toCheckCategory,
-    toSyncCategory
+    toSyncCategory,
   };
 
   const content = () => <InventoryCategory {...updatedProps} />;
@@ -116,14 +125,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckCategoriesMutationResponse, {}>(
       gql(mutations.toCheckCategories),
       {
-        name: 'toCheckProductCategories'
-      }
+        name: 'toCheckProductCategories',
+      },
     ),
     graphql<Props, ToSyncCategoriesMutationResponse, {}>(
       gql(mutations.toSyncCategories),
       {
-        name: 'toSyncProductCategories'
-      }
-    )
-  )(InventoryCategoryContainer)
+        name: 'toSyncProductCategories',
+      },
+    ),
+  )(InventoryCategoryContainer),
 );

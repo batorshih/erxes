@@ -21,20 +21,16 @@ class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, productsConfigsQuery, uomsQuery } = this.props;
 
-    if (productsConfigsQuery.loading || uomsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
-
     // create or update action
     const save = (map: IConfigsMap) => {
       updateConfigs({
-        variables: { configsMap: map }
+        variables: { configsMap: map },
       })
         .then(() => {
           productsConfigsQuery.refetch();
           Alert.success('You successfully updated settings');
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
@@ -54,6 +50,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         configsMap={configsMap}
         save={save}
         uoms={uomsQuery.uoms}
+        loading={productsConfigsQuery.loading || uomsQuery.loading}
       />
     );
   }
@@ -62,13 +59,13 @@ class SettingsContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
-      name: 'productsConfigsQuery'
+      name: 'productsConfigsQuery',
     }),
     graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
-      name: 'uomsQuery'
+      name: 'uomsQuery',
     }),
     graphql<{}>(gql(mutations.productsConfigsUpdate), {
-      name: 'updateConfigs'
-    })
-  )(SettingsContainer)
+      name: 'updateConfigs',
+    }),
+  )(SettingsContainer),
 );

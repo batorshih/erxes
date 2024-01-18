@@ -2,8 +2,8 @@ const IMPORT_EXPORT_TYPES = [
   {
     text: 'Team member',
     contentType: 'user',
-    icon: 'user-square'
-  }
+    icon: 'user-square',
+  },
 ];
 
 import * as moment from 'moment';
@@ -14,7 +14,7 @@ import { fetchSegment, sendFormsMessage } from './messageBroker';
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
@@ -45,7 +45,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any> => {
   const { segmentData } = query;
 
@@ -58,7 +58,7 @@ const prepareDataCount = async (
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData
+      segmentData,
     );
 
     contactsFilter._id = { $in: itemIds };
@@ -93,9 +93,15 @@ export const fillValue = async (
   models: IModels,
   _subdomain: string,
   column: string,
-  item: IUserDocument
+  item: IUserDocument,
 ): Promise<string> => {
+  const [splitedColumn, detail] = column.split('.');
+
   let value = item[column];
+
+  if (detail) {
+    value = item[splitedColumn][detail];
+  }
 
   switch (column) {
     case 'createdAt':
@@ -104,19 +110,19 @@ export const fillValue = async (
 
     case 'branches':
       const branches = await models.Branches.find({
-        _id: item.branchIds
+        _id: item.branchIds,
       }).lean();
 
-      value = branches.map(branch => branch.title).join(', ');
+      value = branches.map((branch) => branch.title).join(', ');
 
       break;
 
     case 'departments':
       const departments = await models.Departments.find({
-        _id: item.departmentIds
+        _id: item.departmentIds,
       }).lean();
 
-      value = departments.map(department => department.title).join(', ');
+      value = departments.map((department) => department.title).join(', ');
 
       break;
 
@@ -156,9 +162,9 @@ export default {
             subdomain,
             action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -176,7 +182,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -200,9 +206,9 @@ export default {
             subdomain,
             action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -235,5 +241,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  }
+  },
 };
